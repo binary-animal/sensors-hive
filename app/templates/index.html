@@ -1,0 +1,11 @@
+<html>
+    <head>
+        <title>{{ title }} - Sensors Hive</title>
+    </head>
+    <body>
+        <h1>List of sensors:</h1>
+        {% for sensor in sensors_list %}
+			<div>{{ sensor }}</div>
+		{% endfor %}
+    </body>
+</html>
