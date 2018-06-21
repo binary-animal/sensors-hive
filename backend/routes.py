@@ -63,7 +63,8 @@ def login_v1():
     data = json.loads(request.data.decode('utf8'))
     s = json.dumps(data, indent=4, sort_keys=True)
     print(s)
-    user = User.query.filter_by(username=data['login']).first()
+    user = User.query.filter_by(username=data['login']).one_or_none()
+    if user is None: return render_template('base_error.json')
     print(user.id)
     tknstr = Config.SECRET_KEY + data['login'] + data['password']
     token = Token(user_id=user.id)
@@ -73,6 +74,13 @@ def login_v1():
     res = {"id": user.id, "token": token.token}
     return render_template('login.json', data=res)
 
+
+@backend.route('/api/logout', methods=['GET', 'POST'])
+@backend.route('/api/v1/logout', methods=['GET', 'POST'])
+def logout_v1():
+    data = json.loads(request.data.decode('utf8'))
+    print(data)
+    return render_template('base_ok.json')
 
 @backend.route('/<path:path>')
 def static_file(path):

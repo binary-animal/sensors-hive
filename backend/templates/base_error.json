@@ -1,6 +1,6 @@
 {
-    "status": "OK",
-    "data":
+    "status": "ERROR",
+    "error_msg":
     {% if data %}
         {% block data %}{% endblock %}
     {% else %}

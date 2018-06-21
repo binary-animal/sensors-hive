@@ -8,6 +8,11 @@ npm install
 npm run-script build
 ```
 
+### Initialize database
+```
+FLASK_APP=sensors-hive.py flask db migrate 
+```
+
 ### Run stand alone server
 ```
 ./run_standalone.sh
