@@ -75,8 +75,8 @@ def login_v1():
     token.generate(tknstr)
     db.session.add(token)
     db.session.commit()
-    res = {"id": user.id, "token": token.token}
-    return render_template('login.json', data=res)
+    res = {"id": str(user.id), "token": token.token}
+    return json.dumps({ "status": "ok", "data": res})#render_template('login.json', data=res)
 
 
 @backend.route('/api/logout', methods=['POST'])
