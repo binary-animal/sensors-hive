@@ -1,9 +1,10 @@
+import json
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_user, logout_user, login_required
-from werkzeug.urls import url_parse
-from backend import backend, common, db
+from backend import backend, db
 from backend.forms import LoginForm, RegistrationForm
-from backend.models import User
+from backend.models import User, Token
+from config import Config
 
 
 @backend.route('/')
@@ -31,9 +32,7 @@ def login():
             return redirect(url_for('login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
-        if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('index')
-        return redirect(next_page)
+
     return render_template('login.html', form=form)
 
 
@@ -58,7 +57,24 @@ def register():
     return render_template('register.html', form=form)
 
 
-@backend.route('/api/v1/') # for GET
-def api():
-    common.api()
-    return "API online"
+@backend.route('/api/login', methods=['GET', 'POST'])  # for backward compatibility
+@backend.route('/api/v1/login', methods=['GET', 'POST'])
+def login_v1():
+    data = json.loads(request.data.decode('utf8'))
+    s = json.dumps(data, indent=4, sort_keys=True)
+    print(s)
+    user = User.query.filter_by(username=data['login']).first()
+    print(user.id)
+    tknstr = Config.SECRET_KEY + data['login'] + data['password']
+    token = Token(user_id=user.id)
+    token.generate(tknstr)
+    db.session.add(token)
+    db.session.commit()
+    res = {"id": user.id, "token": token.token}
+    return render_template('login.json', data=res)
+
+
+@backend.route('/<path:path>')
+def static_file(path):
+    print(path)
+    return backend.send_static_file(path)
