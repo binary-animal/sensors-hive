@@ -5,7 +5,7 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 
 
-backend = Flask(__name__)
+backend = Flask(__name__, static_url_path='/static')
 backend.config.from_object(Config)
 db = SQLAlchemy(backend)
 migrate = Migrate(backend, db)

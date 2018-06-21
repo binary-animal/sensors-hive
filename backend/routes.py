@@ -72,3 +72,9 @@ def login_v1():
     db.session.commit()
     res = {"id": user.id, "token": token.token}
     return render_template('login.json', data=res)
+
+
+@backend.route('/<path:path>')
+def static_file(path):
+    print(path)
+    return backend.send_static_file(path)
