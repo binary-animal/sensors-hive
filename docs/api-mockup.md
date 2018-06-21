@@ -26,7 +26,7 @@
 #### Запрос
 
 ```
-POST /api/login
+POST /api/v1/login
 
 {
     "login": "%user_login%",
@@ -47,7 +47,7 @@ POST /api/login
 #### Запрос
 
 ```
-POST /api/logout
+POST /api/v1/logout
 
 {
     "token": "%auth_token%"
@@ -64,7 +64,7 @@ POST /api/logout
 #### Запрос
 
 ```
-POST /api/newtoken
+POST /api/v1/newtoken
 
 {
     "token": "%auth_token%"
@@ -85,7 +85,7 @@ POST /api/newtoken
 #### Запрос
 
 ```
-POST /api/sensors
+POST /api/v1/sensors
 
 {
     "token": "%auth_token%",
@@ -160,7 +160,7 @@ POST /api/sensors
 #### Запрос
 
 ```
-POST /api/controls
+POST /api/v1/controls
 
 {
     "token": "%auth_token%",
@@ -213,7 +213,7 @@ POST /api/controls
 #### Запрос
 
 ```
-POST /api/sensorgroups
+POST /api/v1/sensorgroups
 
 {
     "token": "%auth_token%",
@@ -247,7 +247,7 @@ POST /api/sensorgroups
 #### Запрос
 
 ```
-POST /api/controlgroups
+POST /api/v1/controlgroups
 
 {
     "token": "%auth_token%",
@@ -282,7 +282,7 @@ POST /api/controlgroups
 #### Запрос
 
 ```
-POST /api/state
+POST /api/v1/state
 
 {
     "token": "%auth_token%",
@@ -337,7 +337,7 @@ POST /api/state
 #### Запрос
 
 ```
-POST /api/sensorhistory
+POST /api/v1/sensorhistory
 
 {
     "token": "%auth_token%",
@@ -364,7 +364,7 @@ POST /api/sensorhistory
 #### Запрос
 
 ```
-POST /api/controlhistory
+POST /api/v1/controlhistory
 
 {
     "token": "%auth_token%",
@@ -394,7 +394,7 @@ POST /api/controlhistory
 #### Запрос
 
 ```
-POST /api/changecontrol
+POST /api/v1/changecontrol
 
 {
     "token": "%auth_token%",
@@ -416,7 +416,7 @@ POST /api/changecontrol
 #### Запрос
 
 ```
-POST /api/resetcontrol
+POST /api/v1/resetcontrol
 
 {
     "token": "%auth_token%",

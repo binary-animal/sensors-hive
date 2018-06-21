@@ -1,0 +1,5 @@
+{% extends "base_ok.json" %}
+
+{% block data %}
+    {{data}}
+{% endblock%}

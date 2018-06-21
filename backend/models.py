@@ -31,6 +31,10 @@ class Token(db.Model):
     def __repr__(self):
         return '<Token {} for user_id {}>'.format(self.token, self.user_id)
 
+    def generate(self, str):
+        self.token = generate_password_hash(str).split('$')[2]
+        return self.token
+
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
