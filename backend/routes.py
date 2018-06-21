@@ -57,15 +57,19 @@ def register():
     return render_template('register.html', form=form)
 
 
-@backend.route('/api/login', methods=['GET', 'POST'])  # for backward compatibility
-@backend.route('/api/v1/login', methods=['GET', 'POST'])
+@backend.route('/api/login', methods=['POST'])  # for backward compatibility
+@backend.route('/api/v1/login', methods=['POST'])
 def login_v1():
     data = json.loads(request.data.decode('utf8'))
     s = json.dumps(data, indent=4, sort_keys=True)
     print(s)
     user = User.query.filter_by(username=data['login']).one_or_none()
-    if user is None: return render_template('base_error.json')
-    print(user.id)
+    if user is None:
+        return render_template('base_error.json', data='Login doesn\'t exist')
+    print(user.check_password(data['password']))
+    if not user.check_password(data['password']):
+        # need log it to analyze logs for ban bruteforcers
+        return render_template('base_error.json', data='Password wrong')
     tknstr = Config.SECRET_KEY + data['login'] + data['password']
     token = Token(user_id=user.id)
     token.generate(tknstr)
@@ -75,11 +79,26 @@ def login_v1():
     return render_template('login.json', data=res)
 
 
-@backend.route('/api/logout', methods=['GET', 'POST'])
-@backend.route('/api/v1/logout', methods=['GET', 'POST'])
+@backend.route('/api/logout', methods=['POST'])
+@backend.route('/api/v1/logout', methods=['POST'])
 def logout_v1():
     data = json.loads(request.data.decode('utf8'))
     print(data)
+    token = Token.query.filter_by(token=data['token']).one_or_none()
+    if token is None:
+        return render_template('base_error.json', data='No token')
+    db.session.delete(token)
+    db.session.commit()
+    return render_template('base_ok.json')
+
+
+@backend.route('/api/v1/newtoken', methods=['POST'])
+def newtoken_v1():
+    data = json.loads(request.data.decode('utf8'))
+    print(data)
+    token_old = Token.query.filter_by(token=data['token']).one_or_none()
+    if token_old is None:
+        return render_template('base_error.json', data='')
     return render_template('base_ok.json')
 
 @backend.route('/<path:path>')
