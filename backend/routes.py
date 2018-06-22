@@ -61,22 +61,25 @@ def register():
 @backend.route('/api/v1/login', methods=['POST'])
 def login_v1():
     data = json.loads(request.data.decode('utf8'))
+    ### debug
     s = json.dumps(data, indent=4, sort_keys=True)
     print(s)
+    ###
     user = User.query.filter_by(username=data['login']).one_or_none()
     if user is None:
-        return render_template('base_error.json', data='Login doesn\'t exist')
+        return json.dumps({ "status": "ERROR", "error_msg": "Login doesn't exist"})
     print(user.check_password(data['password']))
     if not user.check_password(data['password']):
         # need log it to analyze logs for ban bruteforcers
-        return render_template('base_error.json', data='Password wrong')
+        return json.dumps({ "status": "ERROR", "error_msg": "Password wrong"})
+
     tknstr = Config.SECRET_KEY + data['login'] + data['password']
     token = Token(user_id=user.id)
     token.generate(tknstr)
     db.session.add(token)
     db.session.commit()
     res = {"id": str(user.id), "token": token.token}
-    return json.dumps({ "status": "ok", "data": res})#render_template('login.json', data=res)
+    return json.dumps({ "status": "OK", "data": res})
 
 
 @backend.route('/api/logout', methods=['POST'])
@@ -86,10 +89,10 @@ def logout_v1():
     print(data)
     token = Token.query.filter_by(token=data['token']).one_or_none()
     if token is None:
-        return render_template('base_error.json', data='No token')
+        return json.dumps({ "status": "ERROR", "error_msg": "No token"})
     db.session.delete(token)
     db.session.commit()
-    return render_template('base_ok.json')
+    return json.dumps({ "status": "OK", "data": {}})
 
 
 @backend.route('/api/v1/newtoken', methods=['POST'])
@@ -98,8 +101,18 @@ def newtoken_v1():
     print(data)
     token_old = Token.query.filter_by(token=data['token']).one_or_none()
     if token_old is None:
-        return render_template('base_error.json', data='')
-    return render_template('base_ok.json')
+        return json.dumps({ "status": "ERROR", "error_msg": "Wrong token"})
+
+    tknstr = Config.SECRET_KEY + data['token']
+    token_new = Token(user_id=token_old.user_id)
+    token_new.generate(tknstr)
+
+    db.session.delete(token_old)
+    db.session.add(token_new)
+    db.session.commit()
+
+    return json.dumps({ "status": "OK", "data": { "token": token_new.token}})
+
 
 @backend.route('/<path:path>')
 def static_file(path):
