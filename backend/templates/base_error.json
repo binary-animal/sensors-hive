@@ -1,0 +1,9 @@
+{
+    "status": "ERROR",
+    "error_msg":
+    {% if data %}
+        "{{ data }}"
+    {% else %}
+        {}
+    {% endif %}
+}

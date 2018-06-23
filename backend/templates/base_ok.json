@@ -1,4 +1,9 @@
 {
     "status": "OK",
-    "data": {% block data %}{% endblock %}
+    "data":
+    {% if data %}
+        {% block data %}{% endblock %}
+    {% else %}
+        {}
+    {% endif %}
 }
