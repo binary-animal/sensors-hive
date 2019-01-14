@@ -1,4 +1,5 @@
 import json
+import requests
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_user, logout_user, login_required
 from backend import backend, db
@@ -6,6 +7,12 @@ from backend.forms import LoginForm, RegistrationForm
 from backend.models import User, Token
 from config import Config
 
+@backend.after_request
+def add_header(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, PUT, POST, DELETE, OPTIONS'
+    return response
 
 @backend.route('/')
 @backend.route('/index')
@@ -56,15 +63,10 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', form=form)
 
-
 @backend.route('/api/login', methods=['POST'])  # for backward compatibility
 @backend.route('/api/v1/login', methods=['POST'])
 def login_v1():
     data = json.loads(request.data.decode('utf8'))
-    ### debug
-    s = json.dumps(data, indent=4, sort_keys=True)
-    print(s)
-    ###
     user = User.query.filter_by(username=data['login']).one_or_none()
     if user is None:
         return json.dumps({ "status": "ERROR", "error_msg": "Login doesn't exist"})
@@ -80,7 +82,6 @@ def login_v1():
     db.session.commit()
     res = {"id": str(user.id), "token": token.token}
     return json.dumps({ "status": "OK", "data": res})
-
 
 @backend.route('/api/logout', methods=['POST'])
 @backend.route('/api/v1/logout', methods=['POST'])
