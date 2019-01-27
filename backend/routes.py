@@ -155,6 +155,7 @@ def sensorhistory_v1():
 
     for event in history:
         result.append({
+            "id" : event['id'],
             "sensor" : event['sensor'],
             "time" : event['time'],
             "value" : event['value']})
