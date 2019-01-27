@@ -139,11 +139,28 @@ def sensors_v1():
             "units" : sensor.units,
             "value" : sensor.value,
             "max" : sensor.max,
-            "min" : sensor.min
-        })
+            "min" : sensor.min})
+    return json.dumps({ "status": "OK", "data": [ result ]})
+
+
+@backend.route('/api/v1/sensorhistory', methods=['POST'])
+def sensorhistory_v1():
+    data = json.loads(request.data.decode('utf8'))
+
+    sensor = data['sensor']
+    limit = data['limit']
+    history = db.session.execute('select * from `history` where sensor = {} limit {}'.format(sensor, limit))
+
+    result = []
+
+    for event in history:
+        result.append({
+            "sensor" : event['sensor'],
+            "time" : event['time'],
+            "value" : event['value']})
 
     return json.dumps({ "status": "OK", "data": [ result ]})
-    
+
 
 @backend.route('/<path:path>')
 def static_file(path):

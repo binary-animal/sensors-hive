@@ -46,6 +46,7 @@ class Sensor(db.Model):
     value = db.Column(db.String(50))
     max = db.Column(db.String(50))
     min = db.Column(db.String(50))
+    history = db.relationship('History')
 
 
 class SensorsGroup(db.Model):
@@ -58,6 +59,13 @@ class NNSensorGroup(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     sensor = db.Column(db.Integer)
     group = db.Column(db.Integer)
+
+
+class History(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sensor = db.Column(db.Integer, db.ForeignKey('sensor.id'))
+    time = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    value = db.Column(db.String(140))
 
 
 @login.user_loader
