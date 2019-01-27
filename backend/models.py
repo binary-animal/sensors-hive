@@ -35,6 +35,31 @@ class Token(db.Model):
         self.token = generate_password_hash(str).split('$')[2]
         return self.token
 
+
+class Sensor(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.Integer)
+    model = db.Column(db.String(140))
+    name = db.Column(db.String(140))
+    description = db.Column(db.String(1000))
+    units = db.Column(db.Integer)
+    value = db.Column(db.String(50))
+    max = db.Column(db.String(50))
+    min = db.Column(db.String(50))
+
+
+class SensorsGroup(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(140))
+    description = db.Column(db.String(1000))
+
+
+class NNSensorGroup(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sensor = db.Column(db.Integer)
+    group = db.Column(db.Integer)
+
+
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))

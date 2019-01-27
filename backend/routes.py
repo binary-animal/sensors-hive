@@ -4,7 +4,7 @@ from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_user, logout_user, login_required
 from backend import backend, db
 from backend.forms import LoginForm, RegistrationForm
-from backend.models import User, Token
+from backend.models import User, Token, Sensor, SensorsGroup, NNSensorGroup
 from config import Config
 
 @backend.after_request
@@ -13,6 +13,7 @@ def add_header(response):
     response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
     response.headers['Access-Control-Allow-Methods'] = 'GET, PUT, POST, DELETE, OPTIONS'
     return response
+
 
 @backend.route('/')
 @backend.route('/index')
@@ -63,6 +64,7 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', form=form)
 
+
 @backend.route('/api/login', methods=['POST'])  # for backward compatibility
 @backend.route('/api/v1/login', methods=['POST'])
 def login_v1():
@@ -82,6 +84,7 @@ def login_v1():
     db.session.commit()
     res = {"id": str(user.id), "token": token.token}
     return json.dumps({ "status": "OK", "data": res})
+
 
 @backend.route('/api/logout', methods=['POST'])
 @backend.route('/api/v1/logout', methods=['POST'])
@@ -114,6 +117,33 @@ def newtoken_v1():
 
     return json.dumps({ "status": "OK", "data": { "token": token_new.token}})
 
+
+@backend.route('/api/v1/sensors', methods=['POST'])
+def sensors_v1():
+    data = json.loads(request.data.decode('utf8'))
+    print(data)
+
+    sensors = Sensor.query.all()
+    print(sensors[0].value);
+
+    result = []
+
+    for sensor in sensors:
+        print(sensor.id)
+        result.append({
+            "id" : sensor.id,
+            "type" : sensor.type,
+            "model" : sensor.model,
+            "name" : sensor.name,
+            "description" : sensor.description,
+            "units" : sensor.units,
+            "value" : sensor.value,
+            "max" : sensor.max,
+            "min" : sensor.min
+        })
+
+    return json.dumps({ "status": "OK", "data": [ result ]})
+    
 
 @backend.route('/<path:path>')
 def static_file(path):
