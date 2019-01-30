@@ -1,10 +1,18 @@
 import json
+import requests
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_user, logout_user, login_required
 from backend import backend, db
 from backend.forms import LoginForm, RegistrationForm
-from backend.models import User, Token
+from backend.models import User, Token, Sensor, SensorsGroup, NNSensorGroup
 from config import Config
+
+@backend.after_request
+def add_header(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, PUT, POST, DELETE, OPTIONS'
+    return response
 
 
 @backend.route('/')
@@ -61,10 +69,6 @@ def register():
 @backend.route('/api/v1/login', methods=['POST'])
 def login_v1():
     data = json.loads(request.data.decode('utf8'))
-    ### debug
-    s = json.dumps(data, indent=4, sort_keys=True)
-    print(s)
-    ###
     user = User.query.filter_by(username=data['login']).one_or_none()
     if user is None:
         return json.dumps({ "status": "ERROR", "error_msg": "Login doesn't exist"})
@@ -112,6 +116,51 @@ def newtoken_v1():
     db.session.commit()
 
     return json.dumps({ "status": "OK", "data": { "token": token_new.token}})
+
+
+@backend.route('/api/v1/sensors', methods=['POST'])
+def sensors_v1():
+    data = json.loads(request.data.decode('utf8'))
+    print(data)
+
+    sensors = Sensor.query.all()
+    print(sensors[0].value);
+
+    result = []
+
+    for sensor in sensors:
+        print(sensor.id)
+        result.append({
+            "id" : sensor.id,
+            "type" : sensor.type,
+            "model" : sensor.model,
+            "name" : sensor.name,
+            "description" : sensor.description,
+            "units" : sensor.units,
+            "value" : sensor.value,
+            "max" : sensor.max,
+            "min" : sensor.min})
+    return json.dumps({ "status": "OK", "data": [ result ]})
+
+
+@backend.route('/api/v1/sensorhistory', methods=['POST'])
+def sensorhistory_v1():
+    data = json.loads(request.data.decode('utf8'))
+
+    sensor = data['sensor']
+    limit = data['limit']
+    history = db.session.execute('select * from `history` where sensor = {} limit {}'.format(sensor, limit))
+
+    result = []
+
+    for event in history:
+        result.append({
+            "id" : event['id'],
+            "sensor" : event['sensor'],
+            "time" : event['time'],
+            "value" : event['value']})
+
+    return json.dumps({ "status": "OK", "data": [ result ]})
 
 
 @backend.route('/<path:path>')
